@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
 
-from app.models.task import TaskCreate, TaskInDB, TaskResponse, TaskAssign
-from app.models.user import UserInDB
-from app.api.dependencies import get_current_user
-from app.database.db_manager import db_manager
+from models.task import TaskCreate, TaskInDB, TaskResponse, TaskAssign
+from models.user import UserInDB
+from api.dependencies import get_current_user
+from database.db_manager import db_manager
 
 router = APIRouter(prefix="/tasks", tags=["Tasks"])
 

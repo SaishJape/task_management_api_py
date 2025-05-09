@@ -4,9 +4,9 @@ from qdrant_client import QdrantClient
 from qdrant_client.http import models
 from qdrant_client.http.exceptions import UnexpectedResponse
 
-from app.core.config import settings
-from app.models.user import UserInDB
-from app.models.task import TaskInDB
+from core.config import settings
+from models.user import UserInDB
+from models.task import TaskInDB
 
 class DatabaseManager:
     _instance = None
@@ -101,6 +101,17 @@ class DatabaseManager:
         except Exception:
             pass
         return None
+    
+    def get_all_users(self) -> List[UserInDB]:
+        """Get all users from the database"""
+        results = self.client.scroll(
+            collection_name="users",
+            limit=100  # In a real app, you'd implement pagination
+        )
+        
+        if results[0]:  # Check if we got any results
+            return [UserInDB(**point.payload) for point in results[0]]
+        return []
     
     def create_task(self, task: TaskInDB) -> str:
         task_dict = task.model_dump()
