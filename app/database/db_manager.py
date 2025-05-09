@@ -4,9 +4,9 @@ from qdrant_client import QdrantClient
 from qdrant_client.http import models
 from qdrant_client.http.exceptions import UnexpectedResponse
 
-from core.config import settings
-from models.user import UserInDB
-from models.task import TaskInDB
+from app.core.config import settings
+from app.models.user import UserInDB
+from app.models.task import TaskInDB
 
 class DatabaseManager:
     _instance = None

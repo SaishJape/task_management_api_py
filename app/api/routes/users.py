@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
 
-from models.user import UserInDB, UserResponse
-from api.dependencies import get_current_user
-from database.db_manager import db_manager
+from app.models.user import UserInDB, UserResponse
+from app.api.dependencies import get_current_user
+from app.database.db_manager import db_manager
 
 router = APIRouter(prefix="/users", tags=["Users"])
 

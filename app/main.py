@@ -1,9 +1,9 @@
 from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
 
-from api.routes import auth, tasks, users
-from database.db_manager import db_manager
-from api.dependencies import get_current_user
+from app.api.routes import auth, tasks, users
+from app.database.db_manager import db_manager
+from app.api.dependencies import get_current_user
 
 # Initialize FastAPI app
 app = FastAPI(
