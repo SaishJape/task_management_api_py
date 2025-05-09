@@ -184,5 +184,25 @@ class DatabaseManager:
             ]
         )
         return True
+    
+    def update_task_status(self, task_id: str, status: str) -> bool:
+        task = self.get_task_by_id(task_id)
+        if not task:
+            return False
+        
+        task.status = status
+        task_dict = task.model_dump()
+        
+        self.client.upsert(
+            collection_name="tasks",
+            points=[
+                models.PointStruct(
+                    id=task.id,
+                    vector=[0.0],  # Placeholder vector
+                    payload=task_dict
+                )
+            ]
+        )
+        return True
 
 db_manager = DatabaseManager()

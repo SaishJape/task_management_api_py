@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
 
-from app.models.task import TaskCreate, TaskInDB, TaskResponse, TaskAssign
+from app.models.task import TaskCreate, TaskInDB, TaskResponse, TaskAssign, TaskStatusUpdate
 from app.models.user import UserInDB
 from app.api.dependencies import get_current_user
 from app.database.db_manager import db_manager
@@ -24,7 +24,8 @@ async def create_task(task_data: TaskCreate, current_user: UserInDB = Depends(ge
         description=task_data.description,
         created_at=task_in_db.created_at,
         assigned_to=None,
-        created_by=current_user.id
+        created_by=current_user.id,
+        status=task_in_db.status
     )
 
 @router.get("/", response_model=List[TaskResponse])
@@ -39,7 +40,8 @@ async def get_my_tasks(current_user: UserInDB = Depends(get_current_user)):
             description=task.description,
             created_at=task.created_at,
             assigned_to=task.assigned_to,
-            created_by=task.created_by
+            created_by=task.created_by,
+            status=task.status
         ) for task in tasks
     ]
     
@@ -79,3 +81,30 @@ async def assign_task(task_assign: TaskAssign, current_user: UserInDB = Depends(
         )
     
     return {"message": "Task assigned successfully"}
+
+@router.post("/update-status", status_code=status.HTTP_200_OK)
+async def update_task_status(task_update: TaskStatusUpdate, current_user: UserInDB = Depends(get_current_user)):
+    # Get the task
+    task = db_manager.get_task_by_id(task_update.task_id)
+    if not task:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Task not found"
+        )
+    
+    # Check if user is the assigned user
+    if task.assigned_to != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only the assigned user can update the task status"
+        )
+    
+    # Update the status
+    success = db_manager.update_task_status(task_update.task_id, task_update.status)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to update task status"
+        )
+    
+    return {"message": f"Task status updated to {task_update.status}"}
