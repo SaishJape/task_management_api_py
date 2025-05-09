@@ -25,36 +25,44 @@ class DatabaseManager:
         while retry_count < max_retries:
             try:
                 self.client = QdrantClient(host=settings.QDRANT_HOST, port=settings.QDRANT_PORT)
-                # Create collections if they don't exist
-                self._create_collections()
+                # Check and create collections only if needed
+                self._ensure_collections_exist()
                 break
             except Exception as e:
                 retry_count += 1
                 wait_time = 2 ** retry_count  # Exponential backoff
-                print(f"Failed to connect to Qdrant. Retrying in {wait_time} seconds...")
+                print(f"Failed to connect to Qdrant. Retrying in {wait_time} seconds... Error: {str(e)}")
                 time.sleep(wait_time)
                 
         if retry_count == max_retries:
             raise Exception("Failed to connect to Qdrant after multiple attempts")
     
-    def _create_collections(self):
-        # Create users collection
+    def _ensure_collections_exist(self):
+        """Check if collections exist and create only if they don't"""
+        # Check and create users collection if needed
         try:
-            self.client.get_collection("users")
-        except (UnexpectedResponse, Exception):
-            self.client.create_collection(
-                collection_name="users",
-                vectors_config=models.VectorParams(size=1, distance=models.Distance.COSINE),
-            )
-        
-        # Create tasks collection
-        try:
-            self.client.get_collection("tasks")
-        except (UnexpectedResponse, Exception):
-            self.client.create_collection(
-                collection_name="tasks",
-                vectors_config=models.VectorParams(size=1, distance=models.Distance.COSINE),
-            )
+            collections = self.client.get_collections().collections
+            collection_names = [collection.name for collection in collections]
+            
+            # Create users collection if it doesn't exist
+            if "users" not in collection_names:
+                print("Creating users collection...")
+                self.client.create_collection(
+                    collection_name="users",
+                    vectors_config=models.VectorParams(size=1, distance=models.Distance.COSINE),
+                )
+            
+            # Create tasks collection if it doesn't exist
+            if "tasks" not in collection_names:
+                print("Creating tasks collection...")
+                self.client.create_collection(
+                    collection_name="tasks",
+                    vectors_config=models.VectorParams(size=1, distance=models.Distance.COSINE),
+                )
+                
+        except Exception as e:
+            print(f"Error checking/creating collections: {str(e)}")
+            raise
     
     def create_user(self, user: UserInDB) -> str:
         user_dict = user.model_dump()
