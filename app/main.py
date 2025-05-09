@@ -1,9 +1,9 @@
 from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import auth, tasks
-from app.database.db_manager import db_manager
-from app.api.dependencies import get_current_user
+from api.routes import auth, tasks, users
+from database.db_manager import db_manager
+from api.dependencies import get_current_user
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -24,6 +24,7 @@ app.add_middleware(
 # Include routers
 app.include_router(auth.router)
 app.include_router(tasks.router)
+app.include_router(users.router)  # Added the users router
 
 @app.get("/")
 async def root():
