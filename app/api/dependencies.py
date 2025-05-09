@@ -3,10 +3,10 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from typing import Optional
 
-from core.config import settings
-from core.security import TokenData
-from database.db_manager import db_manager
-from models.user import UserInDB
+from app.core.config import settings
+from app.core.security import TokenData
+from app.database.db_manager import db_manager
+from app.models.user import UserInDB
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
