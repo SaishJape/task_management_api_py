@@ -16,14 +16,14 @@ class TaskAssign(BaseModel):
 
 class TaskStatusUpdate(BaseModel):
     task_id: str
-    status: Literal["pending", "completed", "cancelled"]
+    status: Literal["pending", "completed", "cancelled"]  # Removed "in-progress"
 
 class TaskInDB(TaskBase):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     created_at: datetime = Field(default_factory=datetime.utcnow)
     assigned_to: Optional[str] = None
     created_by: str
-    status: str = "pending"  # Default status is pending
+    status: str = "pending"  # Default status is still pending
 
 class TaskResponse(TaskBase):
     id: str
