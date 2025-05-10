@@ -99,6 +99,13 @@ async def update_task_status(task_update: TaskStatusUpdate, current_user: UserIn
             detail="Only the assigned user can update the task status"
         )
     
+    # Validate status (we removed in-progress)
+    if task_update.status not in ["pending", "completed", "cancelled"]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid status. Must be one of: pending, completed, cancelled"
+        )
+    
     # Update the status
     success = db_manager.update_task_status(task_update.task_id, task_update.status)
     if not success:
